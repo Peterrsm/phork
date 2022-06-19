@@ -1,9 +1,10 @@
 package com.pedro.fork.controller;
 
-import com.pedro.fork.enums.PessoaEnum;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.pedro.fork.model.Pessoa;
+import com.pedro.fork.service.PessoaService;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,22 +13,41 @@ import java.util.List;
 @RestController
 @RequestMapping("/fork")
 public class PessoaController {
-    @GetMapping("/")
-    public String informaFuncionando(){
-        return "Deu certo";
+    PessoaService service = new PessoaService();
+    List<Pessoa> listaPessoas = new ArrayList<>();
+
+    @EventListener(ContextRefreshedEvent.class)
+    private void iniciaListaPessoas(){
+        listaPessoas.add(new Pessoa("Ana", Arrays.asList("Vinicius", "Maria", "Carlos", "Joao")));
+        listaPessoas.add(new Pessoa("Maria", Arrays.asList("Ana", "Vinicius")));
+        listaPessoas.add(new Pessoa("Vinicius", Arrays.asList("Ana", "Maria")));
+        listaPessoas.add(new Pessoa("Carlos", Arrays.asList("Ana")));
+        listaPessoas.add(new Pessoa("Joao", Arrays.asList("Ana", "Luiza")));
+        listaPessoas.add(new Pessoa("Luiza", Arrays.asList("Joao")));
     }
 
     @GetMapping("/pessoas")
-    public List getPessoa(){
-        List<PessoaEnum> listaPessoas = Arrays.asList(PessoaEnum.values());
-
-        return listaPessoas;
+    public List getPessoas(){
+        return service.getPerson(listaPessoas);
     }
 
-    @GetMapping("/pessoas/conhecidas/ana")
-    public List<PessoaEnum> getConhecidos(){
-        List<PessoaEnum> listaPessoas = PessoaEnum.ANA.knows();
+    @PostMapping("/pessoas")
+    public void cadastraPessoa(@RequestBody Pessoa pessoa){
+        service.cadastraPerson(pessoa, listaPessoas);
+    }
 
-        return listaPessoas;
+    @GetMapping("/pessoas/{id}")
+    public Pessoa getPessoa(@PathVariable("id") int id) {
+        return service.getPersonById(id, listaPessoas);
+    }
+
+    @GetMapping("/pessoas/conhecidas/{nome}")
+    public List<String> getConhecidosDeAlguem(@PathVariable("nome") String nome){
+        return service.getSomeoneFriends(nome, listaPessoas);
+    }
+
+    @GetMapping("/pessoas/desconhecidas/{nome}")
+    public List<String> getPessoasRelacionadas(@PathVariable("nome") String nome){
+        return service.getRelatedPerson(nome, listaPessoas);
     }
 }
