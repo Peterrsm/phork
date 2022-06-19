@@ -1,12 +1,9 @@
 package com.pedro.fork.service;
 
 import com.pedro.fork.model.Pessoa;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +19,15 @@ public class PessoaService {
         return nomes;
     }
 
-    public void cadastraPerson(Pessoa pessoa, List<Pessoa> listaPessoas){
+    public String cadastraPerson(Pessoa pessoa, List<Pessoa> listaPessoas){
         Pessoa nova = new Pessoa(pessoa.getNome(), pessoa.getConnections());
-        listaPessoas.add(nova);
+        String check = checkConhecidos(pessoa.getConnections(), listaPessoas);
+
+        if(check.equals("")){
+            listaPessoas.add(nova);
+            return "Cadastro efetuado com sucesso!";
+        }
+        return check;
     }
 
     public Pessoa getPersonById(int id, List<Pessoa>listaPessoas) {
@@ -58,6 +61,17 @@ public class PessoaService {
         }
 
         return unknown;
+    }
+
+    public String checkConhecidos(List<String> conhecidos, List<Pessoa> listaPessoas){
+        String retorno = "";
+        List pessoas = getPerson(listaPessoas);
+
+        for (String conhecido: conhecidos) {
+            if(!pessoas.contains(conhecido))
+                retorno += "Pessoa " + conhecido + " não existe\n";
+        }
+        return retorno;
     }
 
     private List<String> getRelated(String nomePessoa, List<Pessoa>listaPessoas){

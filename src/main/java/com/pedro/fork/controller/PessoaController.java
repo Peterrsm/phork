@@ -32,8 +32,8 @@ public class PessoaController {
     }
 
     @PostMapping("/pessoas")
-    public void cadastraPessoa(@RequestBody Pessoa pessoa){
-        service.cadastraPerson(pessoa, listaPessoas);
+    public String cadastraPessoa(@RequestBody Pessoa pessoa){
+        return service.cadastraPerson(pessoa, listaPessoas);
     }
 
     @GetMapping("/pessoas/{id}")
@@ -47,7 +47,17 @@ public class PessoaController {
     }
 
     @GetMapping("/pessoas/desconhecidas/{nome}")
-    public List<String> getPessoasRelacionadas(@PathVariable("nome") String nome){
-        return service.getRelatedPerson(nome, listaPessoas);
+    public List<String> getPessoasRelacionadas(@PathVariable("nome") String nome) {
+        try{
+            return service.getRelatedPerson(nome, listaPessoas);
+        }
+        catch(Exception e){
+            return Arrays.asList(
+                                "Falha ao buscar pessoa.",
+                                "Mensagem: " + e.getMessage(),
+                                "Cause: " + e.getCause(),
+                                "Stacktrace: " + e.getStackTrace()
+                                );
+        }
     }
 }
