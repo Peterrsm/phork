@@ -17,3 +17,7 @@ Ao iniciar o serviço já instancia e populada a lista, para não iniciar vazia,
 - Carlos conhece Ana
 - Joao conhece Ana e Luiza
 - Luiza conhece Joao
+
+<hr>
+
+Considerando o tamanho do serviço foi considerado utilizar o pattern Builder, mas com o uso da biblioteca <b>lombok</b> não foi necessário.
